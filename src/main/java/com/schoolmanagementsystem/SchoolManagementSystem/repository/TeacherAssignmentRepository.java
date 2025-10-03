@@ -13,7 +13,7 @@ public interface TeacherAssignmentRepository extends JpaRepository<TeacherAssign
 
     List<TeacherAssignment> findBySectionId(Long sectionId);
 
-    List<TeacherAssignment> findByTeacherName(String teacherName);
+    List<TeacherAssignment> findByTeacher_Id(Long teacherId);
 
     List<TeacherAssignment> findByAcademicYear(String academicYear);
 

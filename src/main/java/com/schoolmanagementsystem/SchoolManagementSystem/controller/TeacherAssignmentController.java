@@ -1,5 +1,6 @@
 package com.schoolmanagementsystem.SchoolManagementSystem.controller;
 
+import com.schoolmanagementsystem.SchoolManagementSystem.dtos.SubjectAllocationDTO;
 import com.schoolmanagementsystem.SchoolManagementSystem.entity.TeacherAssignment;
 import com.schoolmanagementsystem.SchoolManagementSystem.service.TeacherAssignmentService;
 import org.springframework.http.ResponseEntity;
@@ -8,7 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/sections/{sectionId}/class-teachers")
+@RequestMapping("/class-teachers/{sectionId}")
 public class TeacherAssignmentController {
 
 
@@ -27,7 +28,7 @@ public class TeacherAssignmentController {
     }
 
     @GetMapping
-    public ResponseEntity<List<TeacherAssignment>> getClassTeachersBySection(@PathVariable Long sectionId) {
+    public ResponseEntity<List<SubjectAllocationDTO>> getClassTeachersBySection(@PathVariable Long sectionId) {
         return ResponseEntity.ok(assignmentService.getClassTeachersBySection(sectionId));
     }
 
@@ -37,7 +38,10 @@ public class TeacherAssignmentController {
         return ResponseEntity.ok().build();
     }
 
-
+    @GetMapping("/{teacherId}")
+    public ResponseEntity<List<SubjectAllocationDTO>> getTeacherAssignments(@PathVariable Long teacherId) {
+        return ResponseEntity.ok(assignmentService.getTeacherAssignments(teacherId));
+    }
 
 
 }

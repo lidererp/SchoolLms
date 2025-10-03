@@ -22,7 +22,7 @@ public class EmployeeController {
 
     // Create Employee
 
-    @PostMapping("/create")
+    @PostMapping
     public ResponseEntity<String> createEmployee(@RequestBody Employee employee) {
         employeeService.saveEmployee(employee);
         return ResponseEntity.status(HttpStatus.CREATED).body("Employee created successfully");

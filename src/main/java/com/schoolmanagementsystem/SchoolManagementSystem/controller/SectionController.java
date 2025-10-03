@@ -1,5 +1,6 @@
 package com.schoolmanagementsystem.SchoolManagementSystem.controller;
 
+import com.schoolmanagementsystem.SchoolManagementSystem.dtos.ClassDTO;
 import com.schoolmanagementsystem.SchoolManagementSystem.entity.Section;
 import com.schoolmanagementsystem.SchoolManagementSystem.service.SectionService;
 import org.springframework.http.ResponseEntity;
@@ -33,6 +34,16 @@ public class SectionController {
     public ResponseEntity<Void> deleteSection(@PathVariable Long sectionId) {
         sectionService.deleteSection(sectionId);
         return ResponseEntity.ok().build();
+    }
+
+    @PutMapping("/{sectionId}")
+    public ResponseEntity<Section> updateSection(
+            @PathVariable Long standardId,
+            @PathVariable Long sectionId,
+            @RequestBody Section sectionDetails) {
+
+        Section updated = sectionService.updateSection(standardId, sectionId, sectionDetails);
+        return ResponseEntity.ok(updated);
     }
 
 

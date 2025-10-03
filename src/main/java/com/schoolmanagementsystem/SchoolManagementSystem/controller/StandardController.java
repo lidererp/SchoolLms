@@ -1,6 +1,9 @@
 package com.schoolmanagementsystem.SchoolManagementSystem.controller;
 
+import com.schoolmanagementsystem.SchoolManagementSystem.dtos.ClassDTO;
+import com.schoolmanagementsystem.SchoolManagementSystem.entity.Section;
 import com.schoolmanagementsystem.SchoolManagementSystem.entity.Standard;
+import com.schoolmanagementsystem.SchoolManagementSystem.service.SectionService;
 import com.schoolmanagementsystem.SchoolManagementSystem.service.StandardService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -13,9 +16,11 @@ public class StandardController {
 
 
     private final StandardService standardService;
+    private final SectionService sectionService;
 
-    public StandardController(StandardService standardService) {
+    public StandardController(StandardService standardService, SectionService sectionService) {
         this.standardService = standardService;
+        this.sectionService = sectionService;
     }
 
     @PostMapping
@@ -36,13 +41,19 @@ public class StandardController {
 
     @PutMapping("/{id}")
     public ResponseEntity<Standard> updateStandard(@PathVariable Long id, @RequestBody Standard standard) {
-        return ResponseEntity.ok(standardService.updateStandard(id, standard));
+        Standard updatedStandard = standardService.updateStandard(id, standard);
+        return ResponseEntity.ok(updatedStandard);
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteStandard(@PathVariable Long id) {
         standardService.deleteStandard(id);
         return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/sections/display")
+    public List<ClassDTO> getSectionDisplayNames() {
+        return sectionService.getSectionDisplayNames();
     }
 
 

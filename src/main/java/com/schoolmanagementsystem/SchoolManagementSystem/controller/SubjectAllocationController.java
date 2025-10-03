@@ -1,5 +1,6 @@
 package com.schoolmanagementsystem.SchoolManagementSystem.controller;
 
+import com.schoolmanagementsystem.SchoolManagementSystem.dtos.SubjectAllocationDTO;
 import com.schoolmanagementsystem.SchoolManagementSystem.entity.SubjectAllocation;
 import com.schoolmanagementsystem.SchoolManagementSystem.service.SubjectAllocationService;
 import org.springframework.http.ResponseEntity;
@@ -8,7 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/sections/{sectionId}/subject-allocations")
+@RequestMapping("/sections/{sectionId}")
 public class SubjectAllocationController {
 
 
@@ -18,7 +19,7 @@ public class SubjectAllocationController {
         this.allocationService = allocationService;
     }
 
-    @PostMapping("/subjects/{subjectId}")
+    @PostMapping("/{subjectId}")
     public ResponseEntity<SubjectAllocation> allocateSubject(
             @PathVariable Long sectionId,
             @PathVariable Long subjectId,
@@ -28,7 +29,7 @@ public class SubjectAllocationController {
     }
 
     @GetMapping
-    public ResponseEntity<List<SubjectAllocation>> getSubjectAllocationsBySection(@PathVariable Long sectionId) {
+    public ResponseEntity<List<SubjectAllocationDTO>> getSubjectAllocationsBySection(@PathVariable Long sectionId) {
         return ResponseEntity.ok(allocationService.getSubjectsBySection(sectionId));
     }
 
@@ -38,5 +39,9 @@ public class SubjectAllocationController {
         return ResponseEntity.ok().build();
     }
 
+    @GetMapping("/{teacherId}")
+    public ResponseEntity<List<SubjectAllocationDTO>> getTeacherSubjects(@PathVariable Long teacherId) {
+        return ResponseEntity.ok(allocationService.getTeacherSubjects(teacherId));
+    }
 
 }

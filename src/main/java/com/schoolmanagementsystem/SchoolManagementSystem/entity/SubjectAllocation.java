@@ -27,8 +27,9 @@ public class SubjectAllocation {
     @JoinColumn(name = "subject_id", nullable = false)
     private Subject subject;
 
-    @Column(name = "teacher_name", nullable = false)
-    private String teacherName;
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "teacher_id", nullable = false)
+    private Employee teacher;
 
     @Column(name = "periods_per_week")
     private Integer periodsPerWeek;

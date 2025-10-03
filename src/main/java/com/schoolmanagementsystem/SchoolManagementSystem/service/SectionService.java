@@ -1,5 +1,7 @@
 package com.schoolmanagementsystem.SchoolManagementSystem.service;
 
+import com.schoolmanagementsystem.SchoolManagementSystem.GlobalExceptionHandler.ResourceNotFoundException;
+import com.schoolmanagementsystem.SchoolManagementSystem.dtos.ClassDTO;
 import com.schoolmanagementsystem.SchoolManagementSystem.entity.Section;
 import com.schoolmanagementsystem.SchoolManagementSystem.entity.Standard;
 import com.schoolmanagementsystem.SchoolManagementSystem.repository.SectionRepository;
@@ -7,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -44,6 +47,25 @@ public class SectionService {
     public void deleteSection(Long id) {
         Section section = getSectionById(id);
         sectionRepository.delete(section);
+    }
+
+    public Section updateSection(Long standardId, Long sectionId, Section sectionDetails) {
+        Section section = sectionRepository.findById(sectionId)
+                .orElseThrow(() -> new ResourceNotFoundException("Section not found with id " ,"sectionId", sectionId));
+
+        if (!section.getStandard().getId().equals(standardId)) {
+            throw new IllegalArgumentException("Section " + sectionId + " does not belong to Standard " + standardId);
+        }
+
+        section.setSectionName(sectionDetails.getSectionName());
+        return sectionRepository.save(section);
+    }
+
+    public List<ClassDTO> getSectionDisplayNames() {
+        return sectionRepository.findAll()
+                .stream()
+                .map(s -> new ClassDTO(s.getId(), s.getStandard().getClassName() + "-" + s.getSectionName()))
+                .collect(Collectors.toList());
     }
 
 
