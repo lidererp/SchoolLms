@@ -1,5 +1,7 @@
 package com.schoolmanagementsystem.SchoolManagementSystem.service;
 
+import com.schoolmanagementsystem.SchoolManagementSystem.dtoMappers.TeacherAssignmentMapper;
+import com.schoolmanagementsystem.SchoolManagementSystem.dtos.SubjectAllocationDTO;
 import com.schoolmanagementsystem.SchoolManagementSystem.entity.Section;
 import com.schoolmanagementsystem.SchoolManagementSystem.entity.TeacherAssignment;
 import com.schoolmanagementsystem.SchoolManagementSystem.repository.TeacherAssignmentRepository;
@@ -15,14 +17,21 @@ public class TeacherAssignmentService {
 
     private final TeacherAssignmentRepository assignmentRepository;
     private final SectionService sectionService;
+    private final TeacherAssignmentMapper mapper;
+    private final SubjectAllocationService subjectAllocationService;
 
-    public TeacherAssignmentService(TeacherAssignmentRepository assignmentRepository, SectionService sectionService) {
+
+    public TeacherAssignmentService(TeacherAssignmentRepository assignmentRepository, SectionService sectionService, TeacherAssignmentMapper mapper, SubjectAllocationService subjectAllocationService) {
         this.assignmentRepository = assignmentRepository;
         this.sectionService = sectionService;
+        this.mapper = mapper;
+        this.subjectAllocationService = subjectAllocationService;
     }
 
     public TeacherAssignment assignClassTeacher(Long sectionId, TeacherAssignment assignment) {
         Section section = sectionService.getSectionById(sectionId);
+
+        subjectAllocationService.validateAcademicYear(assignment.getAcademicYear());
 
         // Check if class teacher already assigned for current year
         if (assignmentRepository.existsBySectionIdAndAcademicYearAndIsCurrent(sectionId, assignment.getAcademicYear(), true)) {
@@ -34,12 +43,16 @@ public class TeacherAssignmentService {
         return assignmentRepository.save(assignment);
     }
 
-    public List<TeacherAssignment> getClassTeachersBySection(Long sectionId) {
-        return assignmentRepository.findBySectionId(sectionId);
+    public List<SubjectAllocationDTO> getClassTeachersBySection(Long sectionId) {
+        return assignmentRepository.findBySectionId(sectionId).stream()
+                .map(mapper::toDTO)
+                .toList();
     }
 
-    public List<TeacherAssignment> getClassTeachersByAcademicYear(String academicYear) {
-        return assignmentRepository.findByAcademicYear(academicYear);
+    public List<SubjectAllocationDTO> getTeacherAssignments(Long teacherId) {
+        return assignmentRepository.findByTeacher_Id(teacherId).stream()
+                .map(mapper::toDTO)
+                .toList();
     }
 
     public void removeClassTeacher(Long assignmentId) {

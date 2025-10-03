@@ -23,8 +23,9 @@ public class TeacherAssignment {
     @JoinColumn(name = "section_id", nullable = false)
     private Section section;
 
-    @Column(name = "teacher_name", nullable = false)
-    private String teacherName;
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "teacher_id", nullable = false)
+    private Employee teacher;
 
     @Column(name = "academic_year", nullable = false)
     private String academicYear;

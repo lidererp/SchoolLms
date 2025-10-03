@@ -20,7 +20,7 @@ import java.time.LocalDate;
         })
 public class Employee {
 
-    
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -48,7 +48,7 @@ public class Employee {
     private LocalDate dateOfJoining;
 
     @NotBlank(message = "Relationship name is required")
-    @Column(name = "relationship_name", nullable = false, columnDefinition = "varchar(100) default 'Unknown'")
+    @Column(name = "relationship_name", length = 100, nullable = false)
     private String relationshipName;
 
     @Column(nullable = false)

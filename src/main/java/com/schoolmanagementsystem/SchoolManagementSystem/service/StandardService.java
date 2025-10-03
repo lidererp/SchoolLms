@@ -36,7 +36,11 @@ public class StandardService {
 
     public Standard updateStandard(Long id, Standard standardDetails) {
         Standard standard = getStandardById(id);
-        standard.setClassName(standardDetails.getClassName());
+
+        if (standardDetails.getClassName() != null && !standardDetails.getClassName().isBlank()) {
+            standard.setClassName(standardDetails.getClassName());
+        }
+
         return standardRepository.save(standard);
     }
 
