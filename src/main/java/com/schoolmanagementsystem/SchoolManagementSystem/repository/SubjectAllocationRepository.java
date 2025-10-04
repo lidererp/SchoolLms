@@ -16,12 +16,6 @@ public interface SubjectAllocationRepository extends JpaRepository<SubjectAlloca
 
     List<SubjectAllocation> findByTeacher_Id(Long teacherId);
 
-    List<SubjectAllocation> findByAcademicYear(String academicYear);
-
-    List<SubjectAllocation> findBySubjectId(Long subjectId);
-
-    Optional<SubjectAllocation> findBySectionIdAndSubjectIdAndAcademicYear(Long sectionId, Long subjectId, String academicYear);
-
     boolean existsBySectionIdAndSubjectIdAndAcademicYear(Long sectionId, Long subjectId, String academicYear);
 
 
