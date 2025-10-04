@@ -4,15 +4,12 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.CreationTimestamp;
-
-import java.time.LocalDateTime;
 
 @Entity
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class SubjectAllocation {
+public class SectionSubject {
 
 
     @Id
@@ -27,22 +24,8 @@ public class SubjectAllocation {
     @JoinColumn(name = "subject_id", nullable = false)
     private Subject subject;
 
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "section_subject_id", nullable = false)
-    private SectionSubject sectionSubject;
-
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "teacher_id", nullable = false)
-    private Employee teacher;
-
-    @Column(name = "periods_per_week")
-    private Integer periodsPerWeek;
-
     @Column(name = "academic_year", nullable = false)
     private String academicYear;
-
-    @CreationTimestamp
-    private LocalDateTime createdAt;
 
 
 }
