@@ -15,10 +15,6 @@ public interface TeacherAssignmentRepository extends JpaRepository<TeacherAssign
 
     List<TeacherAssignment> findByTeacher_Id(Long teacherId);
 
-    List<TeacherAssignment> findByAcademicYear(String academicYear);
-
-    Optional<TeacherAssignment> findBySectionIdAndAcademicYearAndIsCurrent(Long sectionId, String academicYear, Boolean isCurrent);
-
     boolean existsBySectionIdAndAcademicYearAndIsCurrent(Long sectionId, String academicYear, Boolean isCurrent);
 
 

@@ -3,6 +3,7 @@ package com.schoolmanagementsystem.SchoolManagementSystem.controller;
 import com.schoolmanagementsystem.SchoolManagementSystem.dtos.SubjectAllocationDTO;
 import com.schoolmanagementsystem.SchoolManagementSystem.entity.SubjectAllocation;
 import com.schoolmanagementsystem.SchoolManagementSystem.service.SubjectAllocationService;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -21,7 +22,7 @@ public class SubjectAllocationController {
 
     @PostMapping("/{subjectId}")
     public ResponseEntity<SubjectAllocation> allocateSubject(
-            @PathVariable Long sectionId,
+            @Valid @PathVariable Long sectionId,
             @PathVariable Long subjectId,
             @RequestBody SubjectAllocation allocation) {
         SubjectAllocation created = allocationService.allocateSubject(sectionId, subjectId, allocation);

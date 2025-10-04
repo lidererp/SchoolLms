@@ -3,6 +3,7 @@ package com.schoolmanagementsystem.SchoolManagementSystem.controller;
 import com.schoolmanagementsystem.SchoolManagementSystem.dtos.SubjectAllocationDTO;
 import com.schoolmanagementsystem.SchoolManagementSystem.entity.TeacherAssignment;
 import com.schoolmanagementsystem.SchoolManagementSystem.service.TeacherAssignmentService;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -21,7 +22,7 @@ public class TeacherAssignmentController {
 
     @PostMapping
     public ResponseEntity<TeacherAssignment> assignClassTeacher(
-            @PathVariable Long sectionId,
+            @Valid @PathVariable Long sectionId,
             @RequestBody TeacherAssignment assignment) {
         TeacherAssignment created = assignmentService.assignClassTeacher(sectionId, assignment);
         return ResponseEntity.ok(created);
