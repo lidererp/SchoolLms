@@ -15,7 +15,7 @@ public class SubjectAllocationMapper {
         dto.setId(allocation.getId());
         dto.setSectionName(allocation.getSection().getSectionName());
         dto.setStandardName(allocation.getSection().getStandard().getClassName());
-        dto.setSubjectName(allocation.getSubject().getSubjectName());
+        dto.setSubjectName(allocation.getSectionSubject().getSubject().getSubjectName());
         dto.setTeacherName(allocation.getTeacher().getEmployeeName());
         dto.setPeriodsPerWeek(allocation.getPeriodsPerWeek());
         dto.setAcademicYear(allocation.getAcademicYear());
