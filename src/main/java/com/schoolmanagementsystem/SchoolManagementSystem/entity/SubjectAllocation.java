@@ -28,10 +28,6 @@ public class SubjectAllocation {
     private Subject subject;
 
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "section_subject_id", nullable = false)
-    private SectionSubject sectionSubject;
-
-    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "teacher_id", nullable = false)
     private Employee teacher;
 
