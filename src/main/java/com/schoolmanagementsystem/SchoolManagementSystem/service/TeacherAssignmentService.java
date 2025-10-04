@@ -1,5 +1,7 @@
 package com.schoolmanagementsystem.SchoolManagementSystem.service;
 
+import com.schoolmanagementsystem.SchoolManagementSystem.GlobalExceptionHandler.DuplicateResourceException;
+import com.schoolmanagementsystem.SchoolManagementSystem.GlobalExceptionHandler.ResourceNotFoundException;
 import com.schoolmanagementsystem.SchoolManagementSystem.dtoMappers.TeacherAssignmentMapper;
 import com.schoolmanagementsystem.SchoolManagementSystem.dtos.SubjectAllocationDTO;
 import com.schoolmanagementsystem.SchoolManagementSystem.entity.Section;
@@ -35,7 +37,11 @@ public class TeacherAssignmentService {
 
         // Check if class teacher already assigned for current year
         if (assignmentRepository.existsBySectionIdAndAcademicYearAndIsCurrent(sectionId, assignment.getAcademicYear(), true)) {
-            throw new RuntimeException("Class teacher already assigned for this section in academic year: " + assignment.getAcademicYear());
+            throw new DuplicateResourceException(
+                    "TeacherAssignment",
+                    "sectionId-academicYear",
+                    sectionId + "-" + assignment.getAcademicYear()
+            );
         }
 
         assignment.setSection(section);
@@ -57,7 +63,7 @@ public class TeacherAssignmentService {
 
     public void removeClassTeacher(Long assignmentId) {
         TeacherAssignment assignment = assignmentRepository.findById(assignmentId)
-                .orElseThrow(() -> new RuntimeException("Teacher assignment not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("TeacherAssignment", "id", assignmentId));
         assignment.setIsCurrent(false);
         assignmentRepository.save(assignment);
     }
