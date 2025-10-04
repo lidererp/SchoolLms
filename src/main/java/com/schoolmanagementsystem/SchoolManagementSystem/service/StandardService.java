@@ -1,5 +1,7 @@
 package com.schoolmanagementsystem.SchoolManagementSystem.service;
 
+import com.schoolmanagementsystem.SchoolManagementSystem.GlobalExceptionHandler.DuplicateResourceException;
+import com.schoolmanagementsystem.SchoolManagementSystem.GlobalExceptionHandler.ResourceNotFoundException;
 import com.schoolmanagementsystem.SchoolManagementSystem.entity.Standard;
 import com.schoolmanagementsystem.SchoolManagementSystem.repository.StandardRepository;
 import org.springframework.stereotype.Service;
@@ -20,7 +22,7 @@ public class StandardService {
 
     public Standard createStandard(Standard standard) {
         if (standardRepository.existsByClassName(standard.getClassName())) {
-            throw new RuntimeException("Standard already exists: " + standard.getClassName());
+            throw new DuplicateResourceException("Standard", "className", standard.getClassName());
         }
         return standardRepository.save(standard);
     }
@@ -31,7 +33,7 @@ public class StandardService {
 
     public Standard getStandardById(Long id) {
         return standardRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Standard not found with id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Standard", "id", id));
     }
 
     public Standard updateStandard(Long id, Standard standardDetails) {

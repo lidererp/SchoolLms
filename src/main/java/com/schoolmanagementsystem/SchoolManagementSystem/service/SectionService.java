@@ -1,5 +1,6 @@
 package com.schoolmanagementsystem.SchoolManagementSystem.service;
 
+import com.schoolmanagementsystem.SchoolManagementSystem.GlobalExceptionHandler.DuplicateResourceException;
 import com.schoolmanagementsystem.SchoolManagementSystem.GlobalExceptionHandler.ResourceNotFoundException;
 import com.schoolmanagementsystem.SchoolManagementSystem.dtos.ClassDTO;
 import com.schoolmanagementsystem.SchoolManagementSystem.entity.Section;
@@ -28,7 +29,8 @@ public class SectionService {
         Standard standard = standardService.getStandardById(standardId);
 
         if (sectionRepository.existsByStandardIdAndSectionName(standardId, section.getSectionName())) {
-            throw new RuntimeException("Section already exists in this standard");
+            throw new DuplicateResourceException("Section", "sectionName", section.getSectionName());
+
         }
 
         section.setStandard(standard);
@@ -41,7 +43,7 @@ public class SectionService {
 
     public Section getSectionById(Long id) {
         return sectionRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Section not found with id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Section", "id", id));
     }
 
     public void deleteSection(Long id) {
