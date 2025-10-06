@@ -94,5 +94,9 @@ public class Employee {
     @Size(max = 100)
     private String subjectToTeach;
 
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "role_id", nullable = false)
+    private Role role;
+
 
 }
