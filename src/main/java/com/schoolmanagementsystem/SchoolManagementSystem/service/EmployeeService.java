@@ -2,7 +2,6 @@ package com.schoolmanagementsystem.SchoolManagementSystem.service;
 
 import com.schoolmanagementsystem.SchoolManagementSystem.GlobalExceptionHandler.ResourceNotFoundException;
 import com.schoolmanagementsystem.SchoolManagementSystem.entity.Employee;
-import com.schoolmanagementsystem.SchoolManagementSystem.enums.EmployeeRole;
 import com.schoolmanagementsystem.SchoolManagementSystem.repository.EmployeeRepository;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -77,8 +76,8 @@ public class EmployeeService {
         }
     }
 
-    public List<Employee> getEmployeesByRole(EmployeeRole role) {
-        return employeeRepository.findByEmployeeRole(role);
+    public List<Employee> getEmployeesByRoleName(String roleName) {
+        return employeeRepository.findByRole_RoleName(roleName);
     }
 
 
