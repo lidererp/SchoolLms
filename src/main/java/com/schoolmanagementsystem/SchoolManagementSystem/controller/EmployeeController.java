@@ -1,6 +1,7 @@
 package com.schoolmanagementsystem.SchoolManagementSystem.controller;
 
 import com.schoolmanagementsystem.SchoolManagementSystem.entity.Employee;
+import com.schoolmanagementsystem.SchoolManagementSystem.enums.EmployeeRole;
 import com.schoolmanagementsystem.SchoolManagementSystem.service.EmployeeService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -65,9 +66,13 @@ public class EmployeeController {
         return ResponseEntity.ok("Employee deleted successfully");
     }
 
-    @GetMapping("/filterByRole/{roleName}")
-    public List<Employee> getEmployeesByRole(@PathVariable String roleName) {
-        return employeeService.getEmployeesByRoleName(roleName);
+
+    // Get employees by role
+
+    @GetMapping("/role/{role}")
+    public ResponseEntity<List<Employee>> getEmployeesByRole(@PathVariable EmployeeRole role) {
+        List<Employee> employees = employeeService.getEmployeesByRole(role);
+        return ResponseEntity.ok(employees);
     }
 
 
