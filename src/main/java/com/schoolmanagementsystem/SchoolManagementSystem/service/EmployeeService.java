@@ -40,7 +40,6 @@ public class EmployeeService {
 
         employee.setEmployeeName(updatedEmployee.getEmployeeName());
         employee.setMobileNumber(updatedEmployee.getMobileNumber());
-        employee.setEmployeeRole(updatedEmployee.getEmployeeRole());
         employee.setMonthlySalary(updatedEmployee.getMonthlySalary());
         employee.setPictureUrl(updatedEmployee.getPictureUrl());
         employee.setDateOfJoining(updatedEmployee.getDateOfJoining());
