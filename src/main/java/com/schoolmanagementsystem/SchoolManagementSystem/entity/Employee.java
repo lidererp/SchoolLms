@@ -33,10 +33,6 @@ public class Employee {
     @Size(max = 15, message = "Mobile number must be less than 15 digits")
     private String mobileNumber;
 
-    @NotNull(message = "Employee role is required")
-    @Enumerated(EnumType.STRING)
-    private EmployeeRole employeeRole;
-
     @NotNull(message = "Monthly salary is required")
     @Positive(message = "Monthly salary must be greater than 0")
     private Double monthlySalary;
