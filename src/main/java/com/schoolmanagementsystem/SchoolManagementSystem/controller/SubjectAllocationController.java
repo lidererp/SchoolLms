@@ -1,5 +1,6 @@
 package com.schoolmanagementsystem.SchoolManagementSystem.controller;
 
+import com.schoolmanagementsystem.SchoolManagementSystem.dtos.BulkSubjectAllocationDTO;
 import com.schoolmanagementsystem.SchoolManagementSystem.dtos.SubjectAllocationDTO;
 import com.schoolmanagementsystem.SchoolManagementSystem.entity.SubjectAllocation;
 import com.schoolmanagementsystem.SchoolManagementSystem.service.SubjectAllocationService;
@@ -26,6 +27,14 @@ public class SubjectAllocationController {
             @PathVariable Long subjectId,
             @RequestBody SubjectAllocation allocation) {
         SubjectAllocation created = allocationService.allocateSubject(sectionId, subjectId, allocation);
+        return ResponseEntity.ok(created);
+    }
+
+    @PostMapping
+    public ResponseEntity<List<SubjectAllocation>> allocateMultipleSubjects(
+            @PathVariable Long sectionId,
+            @Valid @RequestBody BulkSubjectAllocationDTO dto) {
+        List<SubjectAllocation> created = allocationService.allocateMultipleSubjects(sectionId, dto);
         return ResponseEntity.ok(created);
     }
 

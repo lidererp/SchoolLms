@@ -3,16 +3,20 @@ package com.schoolmanagementsystem.SchoolManagementSystem.service;
 import com.schoolmanagementsystem.SchoolManagementSystem.GlobalExceptionHandler.DuplicateResourceException;
 import com.schoolmanagementsystem.SchoolManagementSystem.GlobalExceptionHandler.ResourceNotFoundException;
 import com.schoolmanagementsystem.SchoolManagementSystem.dtoMappers.SubjectAllocationMapper;
+import com.schoolmanagementsystem.SchoolManagementSystem.dtos.BulkSubjectAllocationDTO;
 import com.schoolmanagementsystem.SchoolManagementSystem.dtos.SubjectAllocationDTO;
+import com.schoolmanagementsystem.SchoolManagementSystem.entity.Employee;
 import com.schoolmanagementsystem.SchoolManagementSystem.entity.Section;
 import com.schoolmanagementsystem.SchoolManagementSystem.entity.Subject;
 import com.schoolmanagementsystem.SchoolManagementSystem.entity.SubjectAllocation;
+import com.schoolmanagementsystem.SchoolManagementSystem.repository.EmployeeRepository;
 import com.schoolmanagementsystem.SchoolManagementSystem.repository.SectionSubjectRepository;
 import com.schoolmanagementsystem.SchoolManagementSystem.repository.SubjectAllocationRepository;
 import com.schoolmanagementsystem.SchoolManagementSystem.repository.SubjectRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -25,15 +29,17 @@ public class SubjectAllocationService {
     private final SubjectRepository subjectRepository;
     private final SubjectAllocationMapper mapper;
     private final SectionSubjectRepository sectionSubjectRepository;
+    private final EmployeeRepository employeeRepository;
 
     public SubjectAllocationService(SubjectAllocationRepository allocationRepository,
                                     SectionService sectionService,
-                                    SubjectRepository subjectRepository, SubjectAllocationMapper mapper, SectionSubjectRepository sectionSubjectRepository) {
+                                    SubjectRepository subjectRepository, SubjectAllocationMapper mapper, SectionSubjectRepository sectionSubjectRepository, EmployeeRepository employeeRepository) {
         this.allocationRepository = allocationRepository;
         this.sectionService = sectionService;
         this.subjectRepository = subjectRepository;
         this.mapper = mapper;
         this.sectionSubjectRepository = sectionSubjectRepository;
+        this.employeeRepository = employeeRepository;
     }
 
     public SubjectAllocation allocateSubject(Long sectionId, Long subjectId, SubjectAllocation allocation) {
@@ -58,6 +64,43 @@ public class SubjectAllocationService {
         allocation.setSubject(subject);
         return allocationRepository.save(allocation);
     }
+
+    public List<SubjectAllocation> allocateMultipleSubjects(Long sectionId, BulkSubjectAllocationDTO dto) {
+        Section section = sectionService.getSectionById(sectionId);
+        validateAcademicYear(dto.getAcademicYear());
+
+        List<SubjectAllocation> allocations = new ArrayList<>();
+
+        for (BulkSubjectAllocationDTO.SubjectAllocationItemDTO item : dto.getAllocations()) {
+            Subject subject = subjectRepository.findById(item.getSubjectId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Subject", "id", item.getSubjectId()));
+
+            if (!sectionSubjectRepository.existsBySectionIdAndSubjectIdAndAcademicYear(
+                    sectionId, item.getSubjectId(), dto.getAcademicYear())) {
+                throw new ResourceNotFoundException("Subject in curriculum", "sectionId-subjectId-academicYear",
+                        sectionId + "-" + item.getSubjectId() + "-" + dto.getAcademicYear());
+            }
+
+            if (allocationRepository.existsBySectionIdAndSubjectIdAndAcademicYear(sectionId, item.getSubjectId(), dto.getAcademicYear())) {
+                throw new DuplicateResourceException("SubjectAllocation", "academicYear", dto.getAcademicYear());
+            }
+
+            Employee teacher = employeeRepository.findById(item.getTeacherId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Teacher", "id", item.getTeacherId()));
+
+            SubjectAllocation allocation = new SubjectAllocation();
+            allocation.setSection(section);
+            allocation.setSubject(subject);
+            allocation.setPeriodsPerWeek(item.getPeriodsPerWeek());
+            allocation.setAcademicYear(dto.getAcademicYear());
+            allocation.setTeacher(teacher);
+
+            allocations.add(allocation);
+        }
+
+        return allocationRepository.saveAll(allocations);
+    }
+
 
     public List<SubjectAllocationDTO> getSubjectsBySection(Long sectionId) {
         return allocationRepository.findBySectionId(sectionId).stream()
