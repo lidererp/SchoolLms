@@ -2,6 +2,7 @@ package com.schoolmanagementsystem.SchoolManagementSystem.controller;
 
 import com.schoolmanagementsystem.SchoolManagementSystem.entity.Employee;
 import com.schoolmanagementsystem.SchoolManagementSystem.service.EmployeeService;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -22,7 +23,7 @@ public class EmployeeController {
     // Create Employee
 
     @PostMapping
-    public ResponseEntity<String> createEmployee(@RequestBody Employee employee) {
+    public ResponseEntity<String> createEmployee(@Valid @RequestBody Employee employee) {
         employeeService.saveEmployee(employee);
         return ResponseEntity.status(HttpStatus.CREATED).body("Employee created successfully");
     }
@@ -52,7 +53,7 @@ public class EmployeeController {
     // Update Employee
 
     @PutMapping("/{id}")
-    public ResponseEntity<Employee> updateEmployee(@PathVariable Long id, @RequestBody Employee employee) {
+    public ResponseEntity<Employee> updateEmployee(@Valid @PathVariable Long id, @RequestBody Employee employee) {
         Employee updatedEmployee = employeeService.updateEmployee(id, employee);
         return ResponseEntity.ok(updatedEmployee);
     }

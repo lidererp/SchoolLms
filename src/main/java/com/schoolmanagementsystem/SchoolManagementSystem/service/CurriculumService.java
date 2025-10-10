@@ -2,10 +2,7 @@ package com.schoolmanagementsystem.SchoolManagementSystem.service;
 
 import com.schoolmanagementsystem.SchoolManagementSystem.GlobalExceptionHandler.DuplicateResourceException;
 import com.schoolmanagementsystem.SchoolManagementSystem.GlobalExceptionHandler.ResourceNotFoundException;
-import com.schoolmanagementsystem.SchoolManagementSystem.dtos.CurriculumRequestDTO;
-import com.schoolmanagementsystem.SchoolManagementSystem.dtos.CurriculumResponseDTO;
-import com.schoolmanagementsystem.SchoolManagementSystem.dtos.CurriculumSubjectResponseDTO;
-import com.schoolmanagementsystem.SchoolManagementSystem.dtos.SyllabusResponseDTO;
+import com.schoolmanagementsystem.SchoolManagementSystem.dtos.*;
 import com.schoolmanagementsystem.SchoolManagementSystem.entity.Curriculum;
 import com.schoolmanagementsystem.SchoolManagementSystem.entity.CurriculumSubject;
 import com.schoolmanagementsystem.SchoolManagementSystem.enums.CurriculumScope;
@@ -13,7 +10,8 @@ import com.schoolmanagementsystem.SchoolManagementSystem.repository.CurriculumRe
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class CurriculumService {
@@ -21,10 +19,12 @@ public class CurriculumService {
 
     private final CurriculumRepository curriculumRepository;
     private final CurriculumSubjectService curriculumSubjectService;
+    private final SyllabusService syllabusService;
 
-    public CurriculumService(CurriculumRepository curriculumRepository, CurriculumSubjectService curriculumSubjectService) {
+    public CurriculumService(CurriculumRepository curriculumRepository, CurriculumSubjectService curriculumSubjectService, SyllabusService syllabusService) {
         this.curriculumRepository = curriculumRepository;
         this.curriculumSubjectService = curriculumSubjectService;
+        this.syllabusService = syllabusService;
     }
 
     @Transactional
@@ -33,6 +33,8 @@ public class CurriculumService {
         // Prevent duplicate curriculum for same scope/year
         checkDuplicateCurriculum(dto.getScopeType(), dto.getScopeId(), dto.getAcademicYear(), null);
         checkAcademicYearFormat(dto.getAcademicYear());
+
+        validateSyllabusUniqueness(dto.getCurriculumSubjects());
 
         Curriculum curriculum = new Curriculum();
         curriculum.setScopeType(dto.getScopeType());
@@ -78,19 +80,40 @@ public class CurriculumService {
 
         checkDuplicateCurriculum(dto.getScopeType(), dto.getScopeId(), dto.getAcademicYear(), id);
 
+        validateSyllabusUniqueness(dto.getCurriculumSubjects());
+
         curriculum.setScopeType(dto.getScopeType());
         curriculum.setScopeId(dto.getScopeId());
         curriculum.setAcademicYear(dto.getAcademicYear());
 
+        Map<Long, CurriculumSubject> existingSubjects = curriculum.getCurriculumSubjects().stream()
+                .collect(Collectors.toMap(s -> s.getSubject().getId(), s -> s));
+
+        List<CurriculumSubject> updatedSubjects = new ArrayList<>();
+
+        for (CurriculumSubjectDTO subDTO : dto.getCurriculumSubjects()) {
+            CurriculumSubject subject;
+            if (existingSubjects.containsKey(subDTO.getSubjectId())) {
+                subject = existingSubjects.get(subDTO.getSubjectId());
+                updateSyllabi(subject, subDTO.getSyllabusList());
+            } else {
+                subject = curriculumSubjectService.buildFromDTO(subDTO, curriculum);
+            }
+            updatedSubjects.add(subject);
+        }
+
         curriculum.getCurriculumSubjects().clear();
-        dto.getCurriculumSubjects().forEach(subDTO -> {
-            CurriculumSubject subject = curriculumSubjectService.buildFromDTO(subDTO, curriculum);
-            curriculum.getCurriculumSubjects().add(subject);
-        });
+        curriculum.getCurriculumSubjects().addAll(updatedSubjects);
 
         Curriculum saved = curriculumRepository.save(curriculum);
         return toDTO(saved);
 
+    }
+
+
+    private void updateSyllabi(CurriculumSubject subject, List<SyllabusDTO> syllabusDTOs) {
+        subject.getSyllabusList().clear();
+        syllabusDTOs.forEach(s -> subject.getSyllabusList().add(syllabusService.buildFromDTO(s, subject)));
     }
 
     @Transactional
@@ -153,6 +176,53 @@ public class CurriculumService {
         dto.setCurriculumSubjects(subjects);
         return dto;
 
+    }
+
+    private void validateSyllabusUniqueness(List<CurriculumSubjectDTO> curriculumSubjects) {
+        for (CurriculumSubjectDTO subjectDTO : curriculumSubjects) {
+            if (subjectDTO.getSyllabusList() == null || subjectDTO.getSyllabusList().isEmpty()) {
+                continue;
+            }
+
+            List<SyllabusDTO> syllabusList = subjectDTO.getSyllabusList();
+
+            System.out.println("DEBUG: Validating subject " + subjectDTO.getSubjectId() + " with " + syllabusList.size() + " syllabus entries");
+
+            // Check for duplicates based on unitNumber + unitTitle + topics
+            Set<String> uniqueKeys = new HashSet<>();
+            List<String> duplicates = new ArrayList<>();
+
+            for (int i = 0; i < syllabusList.size(); i++) {
+                SyllabusDTO syllabus = syllabusList.get(i);
+
+                String unitTitle = syllabus.getUnitTitle() != null ? syllabus.getUnitTitle().trim() : "";
+                String topics = syllabus.getTopics() != null ? syllabus.getTopics().trim() : "";
+
+                // CREATE KEY WITH ALL THREE FIELDS
+                String uniqueKey = String.format("%d||%s||%s",
+                        syllabus.getUnitNumber(),
+                        unitTitle.toLowerCase(),
+                        topics.toLowerCase()
+                );
+
+                System.out.println("DEBUG: Syllabus " + i + " - Unit: " + syllabus.getUnitNumber() +
+                        ", Title: '" + unitTitle + "', Topics: '" + topics + "', Key: '" + uniqueKey + "'");
+
+                if (!uniqueKeys.add(uniqueKey)) {
+                    duplicates.add(String.format("Unit %d: %s", syllabus.getUnitNumber(), unitTitle));
+                }
+            }
+
+            if (!duplicates.isEmpty()) {
+                throw new DuplicateResourceException(
+                        "Syllabus",
+                        "unitNumber + unitTitle + topics",
+                        "Duplicate syllabus entries found in subject " + subjectDTO.getSubjectId() + ". " +
+                                "Each syllabus entry must have a unique combination of unit number, title, and topics. " +
+                                "Duplicates: " + duplicates
+                );
+            }
+        }
     }
 
 

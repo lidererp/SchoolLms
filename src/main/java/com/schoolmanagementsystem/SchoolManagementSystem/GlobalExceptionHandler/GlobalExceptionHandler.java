@@ -107,17 +107,34 @@ public class GlobalExceptionHandler {
     }
 
     // Helper to extract column name from SQL errors
+//    private Optional<String> extractColumnName(String input) {
+//        // Try to find patterns like "column 'XYZ'"
+//        Pattern pattern = Pattern.compile("column ['\"](.*?)['\"]");
+//        Matcher matcher = pattern.matcher(input);
+//        if (matcher.find()) return Optional.of(matcher.group(1));
+//
+//        // Try to find patterns like "field 'XYZ'"
+//        pattern = Pattern.compile("field ['\"](.*?)['\"]");
+//        matcher = pattern.matcher(input);
+//        return matcher.find() ? Optional.of(matcher.group(1)) : Optional.empty();
+//    }
+
     private Optional<String> extractColumnName(String input) {
-        // Try to find patterns like "column 'XYZ'"
-        Pattern pattern = Pattern.compile("column ['\"](.*?)['\"]");
+        if (input == null) return Optional.empty();
+
+        // Match "Column 'role_id'" or "column 'role_id'" case-insensitive
+        Pattern pattern = Pattern.compile("[cC]olumn ['\"]?(\\w+)['\"]?");
         Matcher matcher = pattern.matcher(input);
         if (matcher.find()) return Optional.of(matcher.group(1));
 
-        // Try to find patterns like "field 'XYZ'"
-        pattern = Pattern.compile("field ['\"](.*?)['\"]");
+        // Also try matching "field 'role_id'"
+        pattern = Pattern.compile("[fF]ield ['\"]?(\\w+)['\"]?");
         matcher = pattern.matcher(input);
-        return matcher.find() ? Optional.of(matcher.group(1)) : Optional.empty();
+        if (matcher.find()) return Optional.of(matcher.group(1));
+
+        return Optional.empty();
     }
+
 
 
     // Handle database constraint violations (e.g., unique constraint violations)

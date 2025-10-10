@@ -113,5 +113,22 @@ public class EmailService implements EmailSender {
         }
     }
 
+    public void sendStudentCredentials(String toEmail, String studentName, String password) throws MessagingException {
+        Context context = new Context();
+        context.setVariable("studentName", studentName);
+        context.setVariable("studentEmail", toEmail);
+        context.setVariable("password", password);
+
+        String body = templateEngine.process("student-email.html", context);
+
+        MimeMessage message = mailSender.createMimeMessage();
+        MimeMessageHelper helper = new MimeMessageHelper(message, true);
+
+        helper.setTo(toEmail);
+        helper.setSubject("Your Student Account Details");
+        helper.setText(body, true); // true = HTML
+
+        mailSender.send(message);
+    }
 
 }

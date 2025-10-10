@@ -1,6 +1,8 @@
 package com.schoolmanagementsystem.SchoolManagementSystem.repository;
 
 
+import com.schoolmanagementsystem.SchoolManagementSystem.entity.Section;
+import com.schoolmanagementsystem.SchoolManagementSystem.entity.Standard;
 import com.schoolmanagementsystem.SchoolManagementSystem.entity.SubjectAllocation;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
@@ -18,5 +20,5 @@ public interface SubjectAllocationRepository extends JpaRepository<SubjectAlloca
 
     boolean existsBySectionIdAndSubjectIdAndAcademicYear(Long sectionId, Long subjectId, String academicYear);
 
-
+    List<SubjectAllocation> findBySection(Section section);
 }
